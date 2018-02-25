@@ -17,7 +17,7 @@
 
 # load functions to simulate stochastic model (runStochasticOpen), and calculate expected means and covariances (calculateIID)
 source("Base-Code.R")
-library(viridis)
+#library(viridis)
 
 # Create function that implements sensitivity calculations (Eqns 9, 10, Appendix S5)
 calculateSens_coral = function(out, A, E.A, E.n, dA.high, dA.low, dB.high, dB.low, b, p=freq.good, cov.N, s.high, s.low) {

@@ -304,35 +304,72 @@ for(c in 1:length(cf.seq)) {
 # -------------------------------------------------------------------
 
 col.scheme.map = grey.colors(10, start=0.2, end=0.95)
+col.scheme.4 = c('#cccccc','#969696','#636363','#252525')
 ltys = c(1,1,1,1)
 
-# for color
-#col.scheme.4 = c(viridis(256)[1], viridis(256)[105], viridis(256)[205], viridis(256)[256])
-
-# # for black and white
- col.scheme.4 = c('#cccccc','#969696','#636363','#252525')
-
-# Figure of mean density, coefficient of variation, correlation, and biomass (Fig 5)
-pdf("clam_stuff.pdf",width=8.5,height=6)
-#quartz(width=8.5, height=6)
-par(cex.lab=1.25,cex.axis=1.25,mar=c(4.1,4.1,1.5,1))
-layout(rbind(c(1,2,3),c(4,5,6),c(7,7,7)))
-# (Fig 5, top panel)
+## The following function needs to be included to plot the color scale: 
+# # #This function creates a color scale for use with e.g. the image()
+# #function. Input parameters should be consistent with those
+# #used in the corresponding image plot. The "horiz" argument
+# #defines whether the scale is horizonal(=TRUE) or vertical(=FALSE).
+# #Depending on the orientation, x- or y-limits may be defined that
+# #are different from the z-limits and will reduce the range of
+# #colors displayed.
+image.scale <- function(z, zlim, col = heat.colors(12),
+breaks, horiz=TRUE, ylim=NULL, xlim=NULL, ...){
+ if(!missing(breaks)){
+  if(length(breaks) != (length(col)+1)){stop("must have one more break than colour")}
+ }
+ if(missing(breaks) & !missing(zlim)){
+  breaks <- seq(zlim[1], zlim[2], length.out=(length(col)+1)) 
+ }
+ if(missing(breaks) & missing(zlim)){
+  zlim <- range(z, na.rm=TRUE)
+  zlim[2] <- zlim[2]+c(zlim[2]-zlim[1])*(1E-3)#adds a bit to the range in both directions
+  zlim[1] <- zlim[1]-c(zlim[2]-zlim[1])*(1E-3)
+  breaks <- seq(zlim[1], zlim[2], length.out=(length(col)+1))
+ }
+ poly <- vector(mode="list", length(col))
+ for(i in seq(poly)){
+  poly[[i]] <- c(breaks[i], breaks[i+1], breaks[i+1], breaks[i])
+ }
+ xaxt <- ifelse(horiz, "s", "n")
+ yaxt <- ifelse(horiz, "n", "s")
+ if(horiz){YLIM<-c(0,1); XLIM<-range(breaks)}
+ if(!horiz){YLIM<-range(breaks); XLIM<-c(0,1)}
+ if(missing(xlim)) xlim=XLIM
+ if(missing(ylim)) ylim=YLIM
+ plot(1,1,t="n",ylim=ylim, xlim=xlim, xaxt=xaxt, yaxt=yaxt, xaxs="i", yaxs="i", ...)  
+ for(i in seq(poly)){
+  if(horiz){
+   polygon(poly[[i]], c(0,0,1,1), col=col[i], border=NA)
+  }
+  if(!horiz){
+   polygon(c(0,0,1,1), poly[[i]], col=col[i], border=NA)
+  }
+ }
+}
+ 
+pdf("clam_stuff.pdf",width=8.5,height=7)
+par(cex.lab=1.25,cex.axis=1.25, mar=c(4.1,4.1,3,2))
+layout(matrix(c(1,2,3,4,5,6,7,8,9,9,9,9), nrow=3, ncol=4,byrow=TRUE), widths=c(2.5, 2.5, 2.5, 1), heights=c(2,2,3))
+#(Fig 5, top panel)
 c1 = 1
 plot(xs.mid, E.n.all[,1,c1], type='l', lwd=2, ylab='mean density', xlab='size')
-#plot(xs.mid, sqrt(diag(cov.N.all[,,c1])), type='l', lwd=2, ylab='standard deviation', xlab='size')	
 legend("topright", expression(paste(c[f], '=0')), bty="n",cex=1.5)
 plot(xs.mid,sqrt(diag(cov.N.all[,,c1]))/E.n.all[,1,c1], type='l', lwd=2, ylab='coefficient of variation', xlab='size')	
-image(xs.mid, xs.mid, cor.N.all[,,c1], xlab='size (t)', ylab='size (t+1)', col=col.scheme.map)
-# (Fig 5, middle panel)
+image(xs.mid, xs.mid, cor.N.all[,,c1], xlab='size (t)', ylab='size (t+1)', col=col.scheme.map, zlim=c(0,1))
+image.scale(c(0,1), col=col.scheme.map, horiz=FALSE, ylab='', xlab='', yaxt='n')
+axis(2,at=c(0,0.5,1))
+#(Fig 5, middle panel)
 c3 = 19
 plot(xs.mid, E.n.all[,1,c3], type='l', lwd=2, ylab='mean density', xlab='size')
-#plot(xs.mid, sqrt(diag(cov.N.all[,,c3])), type='l', lwd=2, ylab='standard deviation', xlab='size')
 legend("topright", expression(paste(c[f], '=0.7389')), bty="n",cex=1.5)
 plot(xs.mid,sqrt(diag(cov.N.all[,,c3]))/E.n.all[,1,c3], type='l', lwd=2, ylab='coefficient of variation', xlab='size')
-image(xs.mid, xs.mid, cor.N.all[,,c3], xlab='size (t)', ylab='size (t+1)', col=col.scheme.map)
-# (Fig 5, bottom panel)
-#plot(cf.seq,log(B.total.all), type='l', xlab='cf', ylab='total log biomass (g)', lwd=2)
+image(xs.mid, xs.mid, cor.N.all[,,c3], xlab='size (t)', ylab='size (t+1)', col=col.scheme.map, zlim=c(0,1))
+image.scale(range(cor.N.all[,,c3]), col=col.scheme.map[6:10], horiz=FALSE, ylab='', xlab='', yaxt='n')
+axis(2,at=c(0.562,0.78,1))
+#(Fig 5, bottom panel)
 plot(cf.seq,(log(B.total.all-sd.B.total.all)), type='l', lty=2, xlab=expression(c[f]), ylab='total log biomass (g)', lwd=1)
 lines(cf.seq,log(B.total.all), lty=1, lwd=2)
 lines(cf.seq,log(B.total.all+sd.B.total.all), lty=2)

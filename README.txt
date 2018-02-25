@@ -1,6 +1,6 @@
-The files in this repository are the R code used to conduct the analysis and generate the figures for the Methods in Ecology and Evolution (2018) paper "The structured demography of open populations in fluctuating environments" by Sebastian Schreiber and Jacob Moore. Below is a brief description of the files and their interdependency. 
+The files in this repository are the R code used to conduct the analysis and generate the figures for the Methods in Ecology and Evolution (2018) paper "The structured demography of open populations in fluctuating environments" by Sebastian Schreiber and Jacob L Moore. Below is a brief description of the files and their interdependency. 
 
-Base-Code.R This file defines two main functions, runStochasticOpen and calculateIID which are used, in most of the other R files. 
+Base-Code.R This file defines two main functions, runStochasticOpen and calculateIID, which are used in most of the other R files. 
 
 	run StochasticOpen  simulates stochastic, structured population models of the types described in the paper and returns the environmental states, population states, and an estimate of the Lyapunov exponent. 
 
